@@ -14,7 +14,13 @@ const initialFormState = { customer: '', service: '', claim: '', winloss: '', pr
 
 function App() {
   // For Midway authentication
-  const [user ,setUser] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // For changing adding state
+  const [adding, setAdding] = useState(false);
+
+  // For changing editing state
+  const [editing, setEditing] = useState('');
 
   useEffect(() => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
@@ -69,10 +75,12 @@ function App() {
   }
 
   async function editGobj({ id }){
+    console.log(id);
+    setEditing(id);
     if(!formData.customer) return;
     await API.graphql({ query: updateGobjMutation, 
                                variables: { input: { id: id, 
-                                                     name: formData.customer, 
+                                                     customer: formData.customer, 
                                                      service: formData.service,
                                                      claim: formData.claim,
                                                      winloss: formData.winloss,
@@ -81,6 +89,12 @@ function App() {
                                                      user: formData.user
                                                     } }});
     fetchGobjs();
+  }
+
+  // For changing adding state
+  async function changeAdding(){
+    setAdding(!adding);
+    console.log(adding);
   }
 
   return (
@@ -124,11 +138,16 @@ function App() {
             <td className='tableheader'>Win / Loss to GCP? Key factor resulting in loss and learnings</td>
             <td className='tableheader'>Priority / AWS GCP Compete Team Response</td>
             <td className='tableheader'>Service Team PFR / Roadmap</td>
+            { adding? (<button onClick={e => changeAdding()}>HIDE ADDING ROW</button>) :
+            (<button onClick={e => changeAdding()}>SHOW ADDING ROW</button>) }
           </tr>
         </thead>
         <tbody>
+          
           {/* Row for adding data */}
-          <tr>
+          { adding? 
+          (
+           <tr>
             <td>
               {/* Customer, SA, Gap input  */}
               <textarea
@@ -183,7 +202,9 @@ function App() {
               />
             </td>
             <button onClick={() => createGobj()}>ADD</button>  
-          </tr>
+           </tr>
+          ) : 
+          (<a></a>) }
         
           {
             gobjs.map(gobj => (
