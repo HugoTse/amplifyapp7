@@ -88,6 +88,9 @@ function App() {
                                                                         } } });
     setGobjs([ ...gobjs, formData ]);
     setFormData(initialFormState);
+    setAdding(!adding);
+    setEditing('');
+    window.location.reload();
   }
 
   async function deleteGobj({ id }){
@@ -133,194 +136,206 @@ function App() {
     <div className="App">
       {/* For Midway Authentication */}
       {user ? (
+        <>
         <div>
           <button 
             className='signinorout'
             onClick={() => Auth.signOut()}>Sign Out</button>
         </div>
+        <h1>Dashboard</h1>
+        <div style={{marginBottom: 30}}></div>
+        <table>
+          <thead>
+            <tr>
+              <td className='tableheader'>Customer, SA, <em>Gap</em></td>
+              <td className='tableheader'>Service</td>
+              <td className='tableheader'>GCP Claim / Customer Feedback</td>
+              <td className='tableheader'>Win / Loss to GCP? Key factor resulting in loss and learnings</td>
+              <td className='tableheader'>Priority / AWS GCP Compete Team Response</td>
+              <td className='tableheader'>Service Team PFR / Roadmap</td>
+              { adding? (<button className='showAddButton' onClick={e => changeAdding()}>HIDE ADDING ROW</button>) :
+              (<button className='showAddButton' onClick={e => changeAdding()}>SHOW ADDING ROW</button>) }
+            </tr>
+          </thead>
+            <tbody>
+              {/* Row for adding data */}
+              { adding? 
+              (
+              <tr>
+                <td>
+                  {/* Customer, SA, Gap input  */}
+                  <textarea
+                    className='inputStyle'
+                    onChange={e => setFormData({ ...formData, 'customer': e.target.value})}
+                    placeholder="Customer, SA, Gap"
+                    value={formData.customer}
+                  />
+                </td>
+                <td>
+                  {/* Service  */}
+                  <textarea
+                    className='inputStyle'
+                    onChange={e => setFormData({ ...formData, 'service': e.target.value})}
+                    placeholder="Service"
+                    value={formData.service}
+                  />
+                </td>
+                <td>
+                  {/* Claim  */}
+                  <textarea
+                    className='inputStyle'
+                    onChange={e => setFormData({ ...formData, 'claim': e.target.value})}
+                    placeholder={"GCP Claim/Customer Feedback"}
+                    value={formData.claim}
+                  />        
+                </td>
+                <td>
+                  {/* Win/Loss  */}
+                  <textarea
+                    className='inputStyle'
+                    onChange={e => setFormData({ ...formData, 'winloss': e.target.value})}
+                    placeholder="Win/Loss to GCP? Key factor resulting in loss and learnings"
+                    value={formData.winloss}
+                  />
+                </td>
+                <td>
+                  {/* Priority  */}
+                  <select name="priority" 
+                          id="addPriority" 
+                          required 
+                          value={formData.priority} 
+                          onChange={(e) => setFormData({ ...formData, 'priority': e.target.value})}>
+                      <option>Select Priority</option>
+                      <option value="Priority: High">Priority: High</option>
+                      <option value="Priority: Medium">Priority: Medium</option>
+                      <option value="Priority: Low">Priority: Low</option>
+                  </select>   
+                </td>
+                <td>
+                  {/* Service Team  */}
+                  <textarea
+                    className='inputStyle'
+                    onChange={e => setFormData({ ...formData, 'serviceteam': e.target.value})}
+                    placeholder="Service Team PFR/Roadmap"
+                    value={formData.serviceteam}
+                  />
+                </td>
+                <button className='addButton' onClick={() => createGobj()}>ADD</button>  
+              </tr>
+              ) : 
+              (<a></a>) }
+
+              {/* Mapping each of the gobjs */}
+              {
+                gobjs.map(gobj => (
+                  <tr key={gobj.id}>
+                    {(gobj.id == editing) ? 
+                    (
+                    <>
+                      <td>
+                        {/* Customer, SA, Gap input  */}
+                        <textarea
+                          className='inputStyle'
+                          onChange={e => setFormData({ ...formData, 'ccustomer': e.target.value})}
+                          placeholder={gobj.customer}
+                          value={formData.ccustomer}
+                        />
+                      </td>
+                      <td>
+                        {/* Service  */}
+                        <textarea
+                          className='inputStyle'
+                          onChange={e => setFormData({ ...formData, 'cservice': e.target.value})}
+                          placeholder={gobj.service}
+                          value={formData.cservice}
+                        />
+                      </td>
+                      <td>
+                        {/* Claim  */}
+                        <textarea
+                          className='inputStyle'
+                          onChange={e => setFormData({ ...formData, 'cclaim': e.target.value})}
+                          placeholder={gobj.claim}
+                          value={formData.cclaim}
+                        />        
+                      </td>
+                      <td>
+                        {/* Win/Loss  */}
+                        <textarea
+                          className='inputStyle'
+                          onChange={e => setFormData({ ...formData, 'cwinloss': e.target.value})}
+                          placeholder={gobj.winloss}
+                          value={formData.cwinloss}
+                        />
+                      </td>
+                      <td>
+                        {/* Priority  */}
+                        <select name="priority" 
+                                id="addPriority" 
+                                required 
+                                placeholder={gobj.priority}
+                                onChange={(e) => setFormData({ ...formData, 'cpriority': e.target.value})}>
+                            <option>Select Priority</option>
+                            <option value="Priority: High">Priority: High</option>
+                            <option value="Priority: Medium">Priority: Medium</option>
+                            <option value="Priority: Low">Priority: Low</option>
+                        </select>   
+                      </td>
+                      <td>
+                        {/* Service Team  */}
+                        <textarea
+                          className='inputStyle'
+                          onChange={e => setFormData({ ...formData, 'cserviceteam': e.target.value})}
+                          placeholder={gobj.serviceteam}
+                          value={formData.cserviceteam}
+                        />
+                      </td>
+                      <button className='submitButton' onClick={() => editGobj(gobj)}>SUBMIT</button>  
+                    </>
+                    )
+                    :
+                    (
+                    <>
+                      <td>{gobj.customer}</td>
+                      <td>{gobj.service}</td>
+                      <td>{gobj.claim}</td>
+                      <td>{gobj.winloss}</td>
+                      <td>{gobj.priority}</td>
+                      <td>{gobj.serviceteam}</td>
+                      {/* <td>{gobj.user}</td> */}
+                      <td><button className='editButton' onClick={() => editGobj(gobj)}>EDIT</button></td>
+                      <td><button className='deleteButton' onClick={() => deleteGobj(gobj)}>DELETE</button></td>
+                    </>
+                    )}
+
+                    </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </>
       ) : (
         <div>
+          
           <button 
             className='signinorout'
             onClick={() => Auth.federatedSignIn({customProvider: "AmazonFederate"})}>Signin With Midway</button>
+          <h1>Dashboard</h1>
+          <div style={{marginBottom: 30}}></div>
+          <h3>Please sign in to view the dashboard...</h3>
         </div>
       )}
 
 
       {/* For Gobj */}
-      <h1>Dashboard</h1>
+      
         {/* User  */}
         {/* <input
           onChange={e => setFormData({ ...formData, 'user': e.target.value})}
           placeholder="User"
           value={formData.user}
         /> */}
-
-        <div style={{marginBottom: 30}}></div>
       
-      <table>
-        <thead>
-          <tr>
-            <td className='tableheader'>Customer, SA, <em>Gap</em></td>
-            <td className='tableheader'>Service</td>
-            <td className='tableheader'>GCP Claim / Customer Feedback</td>
-            <td className='tableheader'>Win / Loss to GCP? Key factor resulting in loss and learnings</td>
-            <td className='tableheader'>Priority / AWS GCP Compete Team Response</td>
-            <td className='tableheader'>Service Team PFR / Roadmap</td>
-            { adding? (<button className='showAddButton' onClick={e => changeAdding()}>HIDE ADDING ROW</button>) :
-            (<button className='showAddButton' onClick={e => changeAdding()}>SHOW ADDING ROW</button>) }
-          </tr>
-        </thead>
-        <tbody>
-          
-          {/* Row for adding data */}
-          { adding? 
-          (
-           <tr>
-            <td>
-              {/* Customer, SA, Gap input  */}
-              <textarea
-                className='inputStyle'
-                onChange={e => setFormData({ ...formData, 'customer': e.target.value})}
-                placeholder="Customer, SA, Gap"
-                value={formData.customer}
-              />
-            </td>
-            <td>
-              {/* Service  */}
-              <textarea
-                onChange={e => setFormData({ ...formData, 'service': e.target.value})}
-                placeholder="Service"
-                value={formData.service}
-              />
-            </td>
-            <td>
-              {/* Claim  */}
-              <textarea
-                onChange={e => setFormData({ ...formData, 'claim': e.target.value})}
-                placeholder={"GCP Claim/Customer Feedback"}
-                value={formData.claim}
-              />        
-            </td>
-            <td>
-              {/* Win/Loss  */}
-              <textarea
-                onChange={e => setFormData({ ...formData, 'winloss': e.target.value})}
-                placeholder="Win/Loss to GCP? Key factor resulting in loss and learnings"
-                value={formData.winloss}
-              />
-            </td>
-            <td>
-              {/* Priority  */}
-              <select name="priority" 
-                      id="addPriority" 
-                      required 
-                      value={formData.priority} 
-                      onChange={(e) => setFormData({ ...formData, 'priority': e.target.value})}>
-                  <option>Select Priority</option>
-                  <option value="Priority: High">Priority: High</option>
-                  <option value="Priority: Medium">Priority: Medium</option>
-                  <option value="Priority: Low">Priority: Low</option>
-              </select>   
-            </td>
-            <td>
-              {/* Service Team  */}
-              <textarea
-                onChange={e => setFormData({ ...formData, 'serviceteam': e.target.value})}
-                placeholder="Service Team PFR/Roadmap"
-                value={formData.serviceteam}
-              />
-            </td>
-            <button className='addButton' onClick={() => createGobj()}>ADD</button>  
-           </tr>
-          ) : 
-          (<a></a>) }
-
-          {/* Mapping each of the gobjs */}
-          {
-            gobjs.map(gobj => (
-              <tr key={gobj.id}>
-                {(gobj.id == editing) ? 
-                (
-                <>
-                  <td>
-                    {/* Customer, SA, Gap input  */}
-                    <textarea
-                      onChange={e => setFormData({ ...formData, 'ccustomer': e.target.value})}
-                      placeholder={gobj.customer}
-                      value={formData.ccustomer}
-                    />
-                  </td>
-                  <td>
-                    {/* Service  */}
-                    <textarea
-                      onChange={e => setFormData({ ...formData, 'cservice': e.target.value})}
-                      placeholder={gobj.service}
-                      value={formData.cservice}
-                    />
-                  </td>
-                  <td>
-                    {/* Claim  */}
-                    <textarea
-                      onChange={e => setFormData({ ...formData, 'cclaim': e.target.value})}
-                      placeholder={gobj.claim}
-                      value={formData.cclaim}
-                    />        
-                  </td>
-                  <td>
-                    {/* Win/Loss  */}
-                    <textarea
-                      onChange={e => setFormData({ ...formData, 'cwinloss': e.target.value})}
-                      placeholder={gobj.winloss}
-                      value={formData.cwinloss}
-                    />
-                  </td>
-                  <td>
-                    {/* Priority  */}
-                    <select name="priority" 
-                            id="addPriority" 
-                            required 
-                            placeholder={gobj.priority}
-                            onChange={(e) => setFormData({ ...formData, 'cpriority': e.target.value})}>
-                        <option>Select Priority</option>
-                        <option value="Priority: High">Priority: High</option>
-                        <option value="Priority: Medium">Priority: Medium</option>
-                        <option value="Priority: Low">Priority: Low</option>
-                    </select>   
-                  </td>
-                  <td>
-                    {/* Service Team  */}
-                    <textarea
-                      onChange={e => setFormData({ ...formData, 'cserviceteam': e.target.value})}
-                      placeholder={gobj.serviceteam}
-                      value={formData.cserviceteam}
-                    />
-                  </td>
-                  <button className='submitButton' onClick={() => editGobj(gobj)}>SUBMIT</button>  
-                </>
-                )
-                :
-                (
-                <>
-                  <td>{gobj.customer}</td>
-                  <td>{gobj.service}</td>
-                  <td>{gobj.claim}</td>
-                  <td>{gobj.winloss}</td>
-                  <td>{gobj.priority}</td>
-                  <td>{gobj.serviceteam}</td>
-                  {/* <td>{gobj.user}</td> */}
-                  <td><button className='editButton' onClick={() => editGobj(gobj)}>EDIT</button></td>
-                  <td><button className='deleteButton' onClick={() => deleteGobj(gobj)}>DELETE</button></td>
-                </>
-                )}
-
-                </tr>
-            ))
-          }
-        </tbody>
-      </table>
-     
-       
     </div>
   );
 }
