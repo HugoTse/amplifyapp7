@@ -10,7 +10,20 @@ import Amplify from 'aws-amplify';
 import config from './aws-exports.js';
 Amplify.configure(config);
 
-const initialFormState = { customer: '', service: '', claim: '', winloss: '', priority: '', serviceteam: '', user: '' }
+const initialFormState = { customer: '', 
+                           service: '', 
+                           claim: '', 
+                           winloss: '', 
+                           priority: '', 
+                           serviceteam: '', 
+                           user: '',
+                           ccustomer: '',
+                           cservice:'',
+                           cclaim: '',
+                           cwinloss: '',
+                           cpriority: '',
+                           cserviceteam: '',
+                           cuser: '' }
 
 function App() {
   // For Midway authentication
@@ -22,6 +35,7 @@ function App() {
   // For changing editing state
   const [editing, setEditing] = useState('');
 
+  // Midway Authentication
   useEffect(() => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
       switch (event) {
@@ -63,7 +77,15 @@ function App() {
 
   async function createGobj() {
     if (!formData.customer) return;
-    await API.graphql({ query: createGobjMutation, variables: { input: formData } });
+    // await API.graphql({ query: createGobjMutation, variables: { input: formData } });
+    await API.graphql({ query: createGobjMutation, variables: { input: { customer: formData.customer, 
+                                                                         service: formData.service,
+                                                                         claim: formData.claim,
+                                                                         winloss: formData.winloss,
+                                                                         priority: formData.priority,
+                                                                         serviceteam: formData.serviceteam,
+                                                                         user: formData.user
+                                                                        } } });
     setGobjs([ ...gobjs, formData ]);
     setFormData(initialFormState);
   }
@@ -77,17 +99,27 @@ function App() {
   async function editGobj({ id }){
     console.log(id);
     setEditing(id);
-    if(!formData.customer) return;
+    if(!formData.ccustomer) return;
     await API.graphql({ query: updateGobjMutation, 
                                variables: { input: { id: id, 
-                                                     customer: formData.customer, 
-                                                     service: formData.service,
-                                                     claim: formData.claim,
-                                                     winloss: formData.winloss,
-                                                     priority: formData.priority,
-                                                     serviceteam: formData.serviceteam,
-                                                     user: formData.user
+                                                     customer: formData.ccustomer, 
+                                                     service: formData.cservice,
+                                                     claim: formData.cclaim,
+                                                     winloss: formData.cwinloss,
+                                                     priority: formData.cpriority,
+                                                     serviceteam: formData.cserviceteam,
+                                                     user: formData.cuser
                                                     } }});
+    setEditing('');
+    setFormData({ ...formData, 'ccustomer': ''})
+    setFormData({ ...formData, 'cservice': ''})
+    setFormData({ ...formData, 'cclaim': ''})
+    setFormData({ ...formData, 'cwinloss': ''})
+    setFormData({ ...formData, 'cpriority': ''})
+    setFormData({ ...formData, 'cserviceteam': ''})
+    setFormData({ ...formData, 'cuser': ''})
+    setFormData(initialFormState);
+    // window.location.reload();
     fetchGobjs();
   }
 
@@ -114,32 +146,29 @@ function App() {
         </div>
       )}
 
-      {/* <div className='addoredit'>
-        <button onClick={() => createGobj()}>ADD</button>  
-      </div> */}
 
       {/* For Gobj */}
       <h1>Dashboard</h1>
         {/* User  */}
-        <input
+        {/* <input
           onChange={e => setFormData({ ...formData, 'user': e.target.value})}
           placeholder="User"
           value={formData.user}
-        />
+        /> */}
 
         <div style={{marginBottom: 30}}></div>
       
       <table>
         <thead>
           <tr>
-            <td className='tableheader'>Customer,<br/> SA, <em>Gap</em></td>
+            <td className='tableheader'>Customer, SA, <em>Gap</em></td>
             <td className='tableheader'>Service</td>
             <td className='tableheader'>GCP Claim / Customer Feedback</td>
             <td className='tableheader'>Win / Loss to GCP? Key factor resulting in loss and learnings</td>
             <td className='tableheader'>Priority / AWS GCP Compete Team Response</td>
             <td className='tableheader'>Service Team PFR / Roadmap</td>
-            { adding? (<button onClick={e => changeAdding()}>HIDE ADDING ROW</button>) :
-            (<button onClick={e => changeAdding()}>SHOW ADDING ROW</button>) }
+            { adding? (<button className='showAddButton' onClick={e => changeAdding()}>HIDE ADDING ROW</button>) :
+            (<button className='showAddButton' onClick={e => changeAdding()}>SHOW ADDING ROW</button>) }
           </tr>
         </thead>
         <tbody>
@@ -151,6 +180,7 @@ function App() {
             <td>
               {/* Customer, SA, Gap input  */}
               <textarea
+                className='inputStyle'
                 onChange={e => setFormData({ ...formData, 'customer': e.target.value})}
                 placeholder="Customer, SA, Gap"
                 value={formData.customer}
@@ -168,7 +198,7 @@ function App() {
               {/* Claim  */}
               <textarea
                 onChange={e => setFormData({ ...formData, 'claim': e.target.value})}
-                placeholder="GCP Claim/Customer Feedback"
+                placeholder={"GCP Claim/Customer Feedback"}
                 value={formData.claim}
               />        
             </td>
@@ -201,24 +231,90 @@ function App() {
                 value={formData.serviceteam}
               />
             </td>
-            <button onClick={() => createGobj()}>ADD</button>  
+            <button className='addButton' onClick={() => createGobj()}>ADD</button>  
            </tr>
           ) : 
           (<a></a>) }
-        
+
+          {/* Mapping each of the gobjs */}
           {
             gobjs.map(gobj => (
               <tr key={gobj.id}>
-                <td>{gobj.customer}</td>
-                <td>{gobj.service}</td>
-                <td>{gobj.claim}</td>
-                <td>{gobj.winloss}</td>
-                <td>{gobj.priority}</td>
-                <td>{gobj.serviceteam}</td>
-                {/* <td>{gobj.user}</td> */}
-                <td><button onClick={() => deleteGobj(gobj)}>Delete</button></td>
-                <td><button onClick={() => editGobj(gobj)}>Edit</button></td>
-              </tr>
+                {(gobj.id == editing) ? 
+                (
+                <>
+                  <td>
+                    {/* Customer, SA, Gap input  */}
+                    <textarea
+                      onChange={e => setFormData({ ...formData, 'ccustomer': e.target.value})}
+                      placeholder={gobj.customer}
+                      value={formData.ccustomer}
+                    />
+                  </td>
+                  <td>
+                    {/* Service  */}
+                    <textarea
+                      onChange={e => setFormData({ ...formData, 'cservice': e.target.value})}
+                      placeholder={gobj.service}
+                      value={formData.cservice}
+                    />
+                  </td>
+                  <td>
+                    {/* Claim  */}
+                    <textarea
+                      onChange={e => setFormData({ ...formData, 'cclaim': e.target.value})}
+                      placeholder={gobj.claim}
+                      value={formData.cclaim}
+                    />        
+                  </td>
+                  <td>
+                    {/* Win/Loss  */}
+                    <textarea
+                      onChange={e => setFormData({ ...formData, 'cwinloss': e.target.value})}
+                      placeholder={gobj.winloss}
+                      value={formData.cwinloss}
+                    />
+                  </td>
+                  <td>
+                    {/* Priority  */}
+                    <select name="priority" 
+                            id="addPriority" 
+                            required 
+                            placeholder={gobj.priority}
+                            onChange={(e) => setFormData({ ...formData, 'cpriority': e.target.value})}>
+                        <option>Select Priority</option>
+                        <option value="Priority: High">Priority: High</option>
+                        <option value="Priority: Medium">Priority: Medium</option>
+                        <option value="Priority: Low">Priority: Low</option>
+                    </select>   
+                  </td>
+                  <td>
+                    {/* Service Team  */}
+                    <textarea
+                      onChange={e => setFormData({ ...formData, 'cserviceteam': e.target.value})}
+                      placeholder={gobj.serviceteam}
+                      value={formData.cserviceteam}
+                    />
+                  </td>
+                  <button className='submitButton' onClick={() => editGobj(gobj)}>SUBMIT</button>  
+                </>
+                )
+                :
+                (
+                <>
+                  <td>{gobj.customer}</td>
+                  <td>{gobj.service}</td>
+                  <td>{gobj.claim}</td>
+                  <td>{gobj.winloss}</td>
+                  <td>{gobj.priority}</td>
+                  <td>{gobj.serviceteam}</td>
+                  {/* <td>{gobj.user}</td> */}
+                  <td><button className='editButton' onClick={() => editGobj(gobj)}>EDIT</button></td>
+                  <td><button className='deleteButton' onClick={() => deleteGobj(gobj)}>DELETE</button></td>
+                </>
+                )}
+
+                </tr>
             ))
           }
         </tbody>

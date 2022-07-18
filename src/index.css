@@ -51,8 +51,16 @@ code {
   }
 }
 
+.signinorout{
+  margin-top: 2%;
+  background-color: #D0D0D0;
+  border-radius: 10px;
+  height: 50px;
+  font-size: 20px;
+}
+
 table {
-  width: 80%;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 5%;
@@ -73,12 +81,50 @@ thead td {
   vertical-align: middle;
 }
 
-.signinorout{
-  margin-top: 2%;
+.inputStyle {
+  border: None;
+  height: 20%;
 }
 
-.addoredit{
-  margin-top: 2%;
+.showAddButton{
+  margin-left: 50%;
+  margin-top: 30%;
+  background-color: #B0B0B0;
+  border-radius: 10px;
+  width: 110%;
+}
+
+.addButton{
+  margin-left: 50%;
+  margin-top: 10%;
+  background-color: #66FF66;
+  border-radius: 10px;
+  width: 110%;
+  height: 110%;
+}
+
+.editButton{
+  margin-left: 20%;
+  margin-top: 10%;
+  border-radius: 10px;
+  margin-bottom: 10%;
+  background-color: #FFFF33;
+}
+
+.submitButton{
+  margin-left: 50%;
+  margin-top: 10%;
+  background-color: #FFFF33;
+  border-radius: 10px;
+  width: 110%;
+  height: 110%;
+}
+
+.deleteButton{
+  margin-top: 10%;
+  margin-bottom: 10%;
+  border-radius: 10px;
+  background-color: #FF9900;
 }
 
 .tableheader{
